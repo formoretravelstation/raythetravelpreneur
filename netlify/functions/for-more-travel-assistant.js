@@ -87,17 +87,20 @@ function normalizeMessages(incomingMessages, fallbackMessage) {
   if (Array.isArray(incomingMessages) && incomingMessages.length) {
     for (const m of incomingMessages) {
       if (!m || typeof m !== "object") continue;
+
       const role = m.role;
       const content = typeof m.content === "string" ? m.content : "";
+
       if (!content.trim()) continue;
       if (role !== "user" && role !== "assistant") continue;
+
       cleaned.push({ role, content });
     }
   }
 
   // If widget only sends message string, wrap it
   if (
-    !cleaned.length &&
+    cleaned.length === 0 &&
     typeof fallbackMessage === "string" &&
     fallbackMessage.trim()
   ) {
@@ -127,25 +130,83 @@ exports.handler = async (event) => {
   }
 
   try {
-    const body = JSON.parse(event.body || "{}");
+    // Parse body safely
+    let body = {};
+    try {
+      body = JSON.parse(event.body || "{}");
+    } catch (_e) {
+      body = {};
+    }
 
-    // ✅ Activity logging (safe + useful)
-    const msg =
-      typeof body.message === "string" ? body.message.trim() : "";
-    const preview = msg ? msg.slice(0, 80) : "";
+    // Activity log (shows in Netlify function logs)
     console.log("Assistant activity", {
       time: new Date().toISOString(),
-      method: event.httpMethod,
-      origin,
       page: body.page || "unknown",
       source: body.source || "unknown",
-      hasMessage: Boolean(msg),
-      messageChars: msg.length,
-      preview, // short preview only (no full text dump)
-      hasMessagesArray: Array.isArray(body.messages) && body.messages.length > 0,
-      messagesCount: Array.isArray(body.messages) ? body.messages.length : 0,
-      userAgent: event.headers?.["user-agent"] || "unknown",
+      hasMessage: typeof body.message === "string",
     });
 
-    const message = msg;
-    const incomingMessages = Array.isArray(body.messages
+    const message = typeof body.message === "string" ? body.message : "";
+    const incomingMessages = Array.isArray(body.messages) ? body.messages : [];
+    const normalizedMessages = normalizeMessages(incomingMessages, message);
+
+    if (!normalizedMessages.length) {
+      return {
+        statusCode: 400,
+        headers: { ...corsHeaders(origin), "Content-Type": "application/json" },
+        body: JSON.stringify({ error: "Missing message" }),
+      };
+    }
+
+    if (!process.env.OPENAI_API_KEY) {
+      return {
+        statusCode: 500,
+        headers: { ...corsHeaders(origin), "Content-Type": "application/json" },
+        body: JSON.stringify({ error: "Server not configured with OpenAI key" }),
+      };
+    }
+
+    // Lightweight context to keep model aligned with the page and source
+    const contextBits = [];
+    if (body.page) contextBits.push(`Page: ${body.page}`);
+    if (body.source) contextBits.push(`Source: ${body.source}`);
+    const CONTEXT = contextBits.length
+      ? `\n\nContext:\n${contextBits.join("\n")}\n`
+      : "";
+
+    const messagesForAI = [
+      { role: "system", content: SYSTEM_PROMPT + CONTEXT },
+      ...normalizedMessages,
+    ];
+
+    const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+    const completion = await client.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: messagesForAI,
+      temperature: 0.7,
+      max_tokens: 450,
+    });
+
+    const reply =
+      completion?.choices?.[0]?.message?.content?.trim() ||
+      "Sorry, I had trouble responding. Please try again.";
+
+    return {
+      statusCode: 200,
+      headers: { ...corsHeaders(origin), "Content-Type": "application/json" },
+      body: JSON.stringify({ reply }),
+    };
+  } catch (err) {
+    console.error("Function error:", err);
+
+    return {
+      statusCode: 500,
+      headers: { ...corsHeaders(origin), "Content-Type": "application/json" },
+      body: JSON.stringify({
+        error: "Server error",
+        details: err?.message || String(err),
+      }),
+    };
+  }
+};
