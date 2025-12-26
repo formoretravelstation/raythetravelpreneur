@@ -68,7 +68,6 @@ If asked about fees, pricing, or using a travel advisor:
 - Keep it short and factual.
 - Do not over-explain unless the visitor asks follow-up questions.
 
-
 Always end with ONE next-step question when appropriate.
 `;
 
@@ -97,7 +96,11 @@ function normalizeMessages(incomingMessages, fallbackMessage) {
   }
 
   // If widget only sends message string, wrap it
-  if (!cleaned.length && typeof fallbackMessage === "string" && fallbackMessage.trim()) {
+  if (
+    !cleaned.length &&
+    typeof fallbackMessage === "string" &&
+    fallbackMessage.trim()
+  ) {
     cleaned.push({ role: "user", content: fallbackMessage.trim() });
   }
 
@@ -126,65 +129,23 @@ exports.handler = async (event) => {
   try {
     const body = JSON.parse(event.body || "{}");
 
-    const message = typeof body.message === "string" ? body.message : "";
-    const incomingMessages = Array.isArray(body.messages) ? body.messages : [];
-
-    const normalizedMessages = normalizeMessages(incomingMessages, message);
-
-    if (!normalizedMessages.length) {
-      return {
-        statusCode: 400,
-        headers: { ...corsHeaders(origin), "Content-Type": "application/json" },
-        body: JSON.stringify({ error: "Missing message" }),
-      };
-    }
-
-    if (!process.env.OPENAI_API_KEY) {
-      return {
-        statusCode: 500,
-        headers: { ...corsHeaders(origin), "Content-Type": "application/json" },
-        body: JSON.stringify({ error: "Server not configured with OpenAI key" }),
-      };
-    }
-
-    // Lightweight context to keep model aligned with the page and source
-    const contextBits = [];
-    if (body.page) contextBits.push(`Page: ${body.page}`);
-    if (body.source) contextBits.push(`Source: ${body.source}`);
-    const CONTEXT = contextBits.length ? `\n\nContext:\n${contextBits.join("\n")}\n` : "";
-
-    const messagesForAI = [
-      { role: "system", content: SYSTEM_PROMPT + CONTEXT },
-      ...normalizedMessages,
-    ];
-
-    const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-
-    const completion = await client.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages: messagesForAI,
-      temperature: 0.7,
-      max_tokens: 450,
+    // ✅ Activity logging (safe + useful)
+    const msg =
+      typeof body.message === "string" ? body.message.trim() : "";
+    const preview = msg ? msg.slice(0, 80) : "";
+    console.log("Assistant activity", {
+      time: new Date().toISOString(),
+      method: event.httpMethod,
+      origin,
+      page: body.page || "unknown",
+      source: body.source || "unknown",
+      hasMessage: Boolean(msg),
+      messageChars: msg.length,
+      preview, // short preview only (no full text dump)
+      hasMessagesArray: Array.isArray(body.messages) && body.messages.length > 0,
+      messagesCount: Array.isArray(body.messages) ? body.messages.length : 0,
+      userAgent: event.headers?.["user-agent"] || "unknown",
     });
 
-    const reply =
-      completion?.choices?.[0]?.message?.content?.trim() ||
-      "Sorry, I had trouble responding. Please try again.";
-
-    return {
-      statusCode: 200,
-      headers: { ...corsHeaders(origin), "Content-Type": "application/json" },
-      body: JSON.stringify({ reply }),
-    };
-  } catch (err) {
-    console.error("Function error:", err);
-    return {
-      statusCode: 500,
-      headers: { ...corsHeaders(origin), "Content-Type": "application/json" },
-      body: JSON.stringify({
-        error: "Server error",
-        details: err?.message || String(err),
-      }),
-    };
-  }
-};
+    const message = msg;
+    const incomingMessages = Array.isArray(body.messages
