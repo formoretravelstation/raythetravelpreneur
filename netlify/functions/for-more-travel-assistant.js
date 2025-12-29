@@ -23,10 +23,17 @@ Core rules:
 - Keep responses concise and friendly.
 - No long dashes.
 
+Link rules:
+- Do not include Markdown links like [here](#) or placeholder URLs.
+- Do not say "click here".
+- Do not write or format links of any kind.
+- If a link is needed, say that a quick form is the easiest next step.
+- The system will add the correct clickable link automatically.
+
 Conversion rules:
 - Travel intent routes to the travel quote form.
 - Business or partnership curiosity routes to the business page.
-- Present links as the easiest next step, never as a commitment.
+- Present the next step as a way to continue the conversation, not as a commitment.
 
 Tone:
 - Human, confident, respectful, not salesy.
@@ -79,6 +86,12 @@ function alreadySharedLink(messages, url) {
     .join(" ")
     .toLowerCase();
   return joined.includes(url.toLowerCase());
+}
+
+// Safety net: strip any Markdown links the model might try to output
+function stripMarkdownLinks(text) {
+  if (!text || typeof text !== "string") return text;
+  return text.replace(/\[([^\]]+)\]\([^)]+\)/g, "$1");
 }
 
 exports.handler = async (event) => {
@@ -157,6 +170,9 @@ exports.handler = async (event) => {
     let reply =
       data?.choices?.[0]?.message?.content?.trim() ||
       "Thanks for your message. How can I help you today?";
+
+    // Clean any accidental markdown links
+    reply = stripMarkdownLinks(reply);
 
     const lastUserText =
       normalizedMessages
