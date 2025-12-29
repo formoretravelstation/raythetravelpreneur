@@ -1,78 +1,50 @@
 // netlify/functions/for-more-travel-assistant.js
-// For More Travel Station - single "brain" function (shared across your sites)
 
-const OpenAI = require("openai");
+const FORM_URL = "https://formoretravelstationquoteform.netlify.app/"; 
+// If you want a different capture form for partnerships, put it here.
 
-/**
- * SYSTEM PROMPT (controls the AI's behavior everywhere)
- * - Calm, confident, non-defensive
- * - Normalizes skepticism
- * - Browsing stays browsing unless they ask about commissions/business
- * - Mentions commissions + residual income realistically (no guarantees)
- * - Avoid long dash punctuation in sentences
- */
 const SYSTEM_PROMPT = `
 You are the For More Travel Assistant for For More Travel Station (Ray Johnson).
 
-Voice and style:
-- Calm, confident, friendly, and human.
-- Do not argue. Do not sound defensive.
-- Keep answers clear and simple.
-- Avoid long dash punctuation (do not use em dashes). Use periods or commas.
-- No income guarantees. No hype. Results vary.
+Your role is to identify visitor intent and respond accordingly, then guide the visitor toward a clear next step.
 
-Core purpose:
-1) Help visitors with travel questions and planning (quotes, ideas, destinations, cruises, hotels, rail, events).
-2) Educate visitors about owning a travel business through InteleTravel and PlanNet Marketing.
-3) If they show interest, guide them toward becoming a business partner without pressure.
+Intent types:
+1) Traveler intent: planning trips, browsing destinations, travel questions.
+2) Business-curious intent: how it works, flexibility, commissions, getting started.
+3) Partner intent: partnership interest, building a business, joining a team, ownership.
+4) Skeptic intent: doubt, sarcasm, MLM concerns.
 
-Key facts (use only when relevant):
-- Commissions are earned on ticket sales, hotel stays, car rentals, cruises, and more.
-- Someone earns those commissions whether the customer uses an advisor or not.
-- Owning a travel business changes who receives the commission.
-- Ray earns commissions on trips he takes.
-- Ray earns commissions on trips he books for other people.
-- Long term residual income can come from business partnering and supporting others, depending on effort and consistency.
+Core rules:
+- Stay calm, grounded, factual.
+- Never hype, never argue.
+- No income guarantees or "make money fast" claims.
+- Match the visitor's intent level.
+- Ask one clear next-step question when appropriate.
+- Keep responses concise and friendly.
+- No long dashes.
 
-Browsing behavior:
-If a visitor says they are "just browsing", "looking at photos", or similar:
-- Acknowledge browsing first.
-- Do not lead with income or commissions.
-- Mention ownership only as optional context.
-- Keep it relaxed and non salesy.
-- Ask a permission based question like: "Want me to point you to deals, trip ideas, or how the business works?"
+Key facts you can use when relevant:
+- Someone always earns the commission on travel.
+- Ray can earn commissions on trips he books for others.
+- Ray can earn commissions on trips he takes.
+- Ownership determines who gets paid.
+- Long-term residual income comes from business partnering, but never promise results.
 
-Intent escalation:
-If a visitor asks follow-up questions about commissions, flexibility, owning vs booking, building income, or helping others travel:
-- Shift into business-curious or partner intent.
-- Explain ownership and residual income clearly and ethically.
-- Ask ONE focused question about their interest level.
+Conversion rule for business and partnership curiosity:
+- Do not push.
+- If the visitor shows interest in learning more, guide them to a short form to capture name and email so Ray can follow up personally.
+- Present the form as the easiest next step to continue the conversation, not a commitment.
 
-Memories page behavior:
-If the user says "yes" or "explain" in response to the travel memories concept:
-- Explain the connection between travel memories and ownership.
-- Mention commissions for personal travel and for booking others.
-- Mention business partnering as the long term residual income path.
-- Ask ONE simple question about their goal (travel more, extra income, flexibility, business ownership).
+If the visitor wants travel planning:
+- Ask for trip basics (where, dates, number of travelers, budget range, departure city).
+- Provide guidance and options, then invite them to the form to request a quote when appropriate.
 
-If the user is skeptical:
-- Validate the concern briefly.
-- Explain with facts.
-- Invite them to ask a practical question (cost to start, what you do daily, how commissions work).
-- Do not argue.
-
-Fees clarification:
-If asked about fees, pricing, or using a travel advisor:
-- State clearly that For More Travel Station does not charge a fee for travel services.
-- Explain briefly that compensation usually comes from travel partners, not the client.
-- Keep it short and factual.
-- Do not over-explain unless the visitor asks follow-up questions.
-
-Always end with ONE next-step question when appropriate.
+Tone:
+- Human, confident, respectful, not salesy.
 `;
 
-// CORS helpers
-function corsHeaders(origin) {
+// Build CORS headers based on origin
+function buildCorsHeaders(origin) {
   return {
     "Access-Control-Allow-Origin": origin || "*",
     "Access-Control-Allow-Headers": "Content-Type, Authorization",
@@ -80,132 +52,153 @@ function corsHeaders(origin) {
   };
 }
 
-// Safe normalize helper
-function normalizeMessages(incomingMessages, fallbackMessage) {
-  const cleaned = [];
+// Lightweight heuristic to encourage form capture when interest is present
+function looksLikeBusinessInterest(text) {
+  if (!text) return false;
+  const t = text.toLowerCase();
+  return (
+    t.includes("join") ||
+    t.includes("sign up") ||
+    t.includes("partner") ||
+    t.includes("partnership") ||
+    t.includes("how do i start") ||
+    t.includes("how do i get started") ||
+    t.includes("business") ||
+    t.includes("opportunity") ||
+    t.includes("incom") ||
+    t.includes("commission") ||
+    t.includes("work from") ||
+    t.includes("residual") ||
+    t.includes("tell me more")
+  );
+}
 
-  if (Array.isArray(incomingMessages) && incomingMessages.length) {
-    for (const m of incomingMessages) {
-      if (!m || typeof m !== "object") continue;
-
-      const role = m.role;
-      const content = typeof m.content === "string" ? m.content : "";
-
-      if (!content.trim()) continue;
-      if (role !== "user" && role !== "assistant") continue;
-
-      cleaned.push({ role, content });
-    }
-  }
-
-  // If widget only sends message string, wrap it
-  if (
-    cleaned.length === 0 &&
-    typeof fallbackMessage === "string" &&
-    fallbackMessage.trim()
-  ) {
-    cleaned.push({ role: "user", content: fallbackMessage.trim() });
-  }
-
-  // Keep history from getting huge
-  const MAX = 18;
-  return cleaned.length > MAX ? cleaned.slice(cleaned.length - MAX) : cleaned;
+function hasAlreadySharedForm(messages, formUrl) {
+  const joined = (messages || [])
+    .map((m) => (typeof m?.content === "string" ? m.content : ""))
+    .join("\n")
+    .toLowerCase();
+  return joined.includes((formUrl || "").toLowerCase());
 }
 
 exports.handler = async (event) => {
   const origin = event.headers?.origin || "*";
+  const corsHeaders = buildCorsHeaders(origin);
 
-  // Preflight
+  // CORS preflight
   if (event.httpMethod === "OPTIONS") {
-    return { statusCode: 200, headers: corsHeaders(origin), body: "" };
+    return { statusCode: 200, headers: corsHeaders, body: "" };
   }
 
-  // POST only
+  // Only allow POST
   if (event.httpMethod !== "POST") {
     return {
       statusCode: 405,
-      headers: { ...corsHeaders(origin), "Content-Type": "application/json" },
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
       body: JSON.stringify({ error: "Method Not Allowed" }),
     };
   }
 
   try {
-    // Parse body safely
-    let body = {};
-    try {
-      body = JSON.parse(event.body || "{}");
-    } catch (_e) {
-      body = {};
-    }
-
-    // Activity log (shows in Netlify function logs)
-    console.log("Assistant activity", {
-      time: new Date().toISOString(),
-      page: body.page || "unknown",
-      source: body.source || "unknown",
-      hasMessage: typeof body.message === "string",
-    });
-
-    const message = typeof body.message === "string" ? body.message : "";
-    const incomingMessages = Array.isArray(body.messages) ? body.messages : [];
-    const normalizedMessages = normalizeMessages(incomingMessages, message);
-
-    if (!normalizedMessages.length) {
-      return {
-        statusCode: 400,
-        headers: { ...corsHeaders(origin), "Content-Type": "application/json" },
-        body: JSON.stringify({ error: "Missing message" }),
-      };
-    }
-
     if (!process.env.OPENAI_API_KEY) {
       return {
         statusCode: 500,
-        headers: { ...corsHeaders(origin), "Content-Type": "application/json" },
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
         body: JSON.stringify({ error: "Server not configured with OpenAI key" }),
       };
     }
 
-    // Lightweight context to keep model aligned with the page and source
+    const body = JSON.parse(event.body || "{}");
+
+    // Accept either:
+    // 1) { message: "hi" }
+    // 2) { messages: [{role,content}, ...], message?: "hi" }
+    const rawMessages = Array.isArray(body.messages) ? body.messages : [];
+    const rawMessage = typeof body.message === "string" ? body.message : "";
+
+    const normalizedMessages =
+      rawMessages.length > 0
+        ? rawMessages
+        : rawMessage
+        ? [{ role: "user", content: rawMessage }]
+        : [];
+
+    if (normalizedMessages.length === 0) {
+      return {
+        statusCode: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        body: JSON.stringify({ error: "Missing message in request body" }),
+      };
+    }
+
+    // Optional context (helps page-specific behavior)
     const contextBits = [];
     if (body.page) contextBits.push(`Page: ${body.page}`);
     if (body.source) contextBits.push(`Source: ${body.source}`);
-    const CONTEXT = contextBits.length
-      ? `\n\nContext:\n${contextBits.join("\n")}\n`
-      : "";
+
+    const contextText =
+      contextBits.length > 0 ? `\nContext:\n${contextBits.join("\n")}\n` : "";
 
     const messagesForAI = [
-      { role: "system", content: SYSTEM_PROMPT + CONTEXT },
+      { role: "system", content: SYSTEM_PROMPT + contextText },
       ...normalizedMessages,
     ];
 
-    const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-
-    const completion = await client.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages: messagesForAI,
-      temperature: 0.7,
-      max_tokens: 450,
+    const openAIResponse = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: "gpt-4o-mini",
+        temperature: 0.6,
+        max_tokens: 450,
+        messages: messagesForAI,
+      }),
     });
 
-    const reply =
-      completion?.choices?.[0]?.message?.content?.trim() ||
-      "Sorry, I had trouble responding. Please try again.";
+    const data = await openAIResponse.json();
+
+    if (!openAIResponse.ok) {
+      console.error("OpenAI API error:", data);
+      return {
+        statusCode: openAIResponse.status || 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        body: JSON.stringify({ error: "OpenAI API error", details: data }),
+      };
+    }
+
+    let reply =
+      (data?.choices?.[0]?.message?.content || "").trim() ||
+      "Thanks for your message. How can I help you today?";
+
+    // Add a gentle form invite when business interest is detected and form not already shared
+    const lastUserText =
+      [...normalizedMessages].reverse().find((m) => m?.role === "user")?.content || "";
+
+    const shouldOfferForm =
+      looksLikeBusinessInterest(lastUserText) && !hasAlreadySharedForm(normalizedMessages, FORM_URL);
+
+    if (shouldOfferForm) {
+      reply +=
+        "\n\nIf you would like, the easiest next step is a quick form so Ray can follow up personally.\n" +
+        `Continue here: ${FORM_URL}`;
+    }
 
     return {
       statusCode: 200,
-      headers: { ...corsHeaders(origin), "Content-Type": "application/json" },
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
       body: JSON.stringify({ reply }),
     };
-  } catch (err) {
-    console.error("Function error:", err);
-
+  } catch (error) {
+    console.error("Function error:", error);
     return {
       statusCode: 500,
-      headers: { ...corsHeaders(origin), "Content-Type": "application/json" },
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
       body: JSON.stringify({
-        error: "Server error",
-        details: err?.message || String(err),
+        error: "Internal server error",
+        details: error?.message || String(error),
       }),
     };
   }
