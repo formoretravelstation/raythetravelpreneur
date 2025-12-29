@@ -722,6 +722,15 @@
  
 <!-- For More Travel Assistant – Embedded Chat Widget -->
 <style>
+    .fmt-msg-bot a {
+  color: var(--fmt-primary);
+  font-weight: 600;
+  text-decoration: underline;
+}
+.fmt-msg-bot a:hover {
+  opacity: 0.85;
+}
+
   :root {
     --fmt-primary: #0ea5e9;
     --fmt-accent: #14b8a6;
@@ -936,7 +945,7 @@
       chatBody.appendChild(thinkingDiv);
       chatBody.scrollTop = chatBody.scrollHeight;
 
-      try {
+         try {
         const res = await fetch(
           'https://raythetravelpreneur.netlify.app/.netlify/functions/for-more-travel-assistant',
           {
@@ -955,11 +964,11 @@
         if (!res.ok) throw new Error(data?.error || 'Network error');
 
         const reply = data.reply || data.answer || data.message || 'Sorry, I had trouble responding.';
-        thinkingDiv.textContent = reply;
+        thinkingDiv.innerHTML = reply;   // <-- makes links clickable
         messages.push({ role: 'assistant', content: reply });
       } catch (err) {
         console.error(err);
-        thinkingDiv.textContent = 'Sorry, something went wrong. Please try again.';
+        thinkingDiv.innerHTML = 'Sorry, something went wrong. Please try again.';
       }
 
       chatBody.scrollTop = chatBody.scrollHeight;
@@ -985,6 +994,7 @@
 <!-- /For More Travel Assistant – Embedded Chat Widget -->
 </body>
 </html>
+
 
 
 
