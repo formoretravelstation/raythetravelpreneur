@@ -24,10 +24,10 @@ Core rules:
 - No long dashes.
 
 Link rules:
-- Do not include Markdown links like [here](#) or placeholder URLs.
+- Do not include Markdown links like [here](#) or any placeholder URLs.
+- Do not output any links at all, including raw URLs.
 - Do not say "click here".
-- Do not write or format links of any kind.
-- If a link is needed, say that a quick form is the easiest next step.
+- If a link is needed, simply say a quick form is the easiest next step.
 - The system will add the correct clickable link automatically.
 
 Conversion rules:
@@ -53,6 +53,7 @@ function looksLikeBusinessInterest(text) {
   return (
     t.includes("get started") ||
     t.includes("how do i start") ||
+    t.includes("start my business") ||
     t.includes("join") ||
     t.includes("partner") ||
     t.includes("business") ||
@@ -88,9 +89,10 @@ function alreadySharedLink(messages, url) {
   return joined.includes(url.toLowerCase());
 }
 
-// Safety net: strip any Markdown links the model might try to output
+// Safety net: remove any markdown links the model might output
 function stripMarkdownLinks(text) {
   if (!text || typeof text !== "string") return text;
+  // Convert: [text](url) -> text
   return text.replace(/\[([^\]]+)\]\([^)]+\)/g, "$1");
 }
 
@@ -171,7 +173,7 @@ exports.handler = async (event) => {
       data?.choices?.[0]?.message?.content?.trim() ||
       "Thanks for your message. How can I help you today?";
 
-    // Clean any accidental markdown links
+    // Strip any markdown link formatting if it slips through
     reply = stripMarkdownLinks(reply);
 
     const lastUserText =
@@ -190,21 +192,17 @@ exports.handler = async (event) => {
 
     if (shouldOfferQuoteForm) {
       reply += `
-<br><br>
+
 If you would like a personalized quote, the easiest next step is a quick request form.
-<br><br>
-<a href="${TRAVEL_QUOTE_FORM_URL}" target="_blank" rel="noopener noreferrer">
-Request a travel quote
-</a>
+
+<a href="${TRAVEL_QUOTE_FORM_URL}" target="_blank" rel="noopener noreferrer">Request a travel quote</a>
 `;
     } else if (shouldOfferBusinessForm) {
       reply += `
-<br><br>
+
 The easiest next step is a quick form so Ray can follow up personally and walk you through how it works.
-<br><br>
-<a href="${BUSINESS_FORM_URL}" target="_blank" rel="noopener noreferrer">
-Continue the conversation here
-</a>
+
+<a href="${BUSINESS_FORM_URL}" target="_blank" rel="noopener noreferrer">Continue the conversation here</a>
 `;
     }
 
