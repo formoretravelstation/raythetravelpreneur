@@ -1,7 +1,7 @@
 // netlify/functions/for-more-travel-assistant.js
 
-const FORM_URL = "https://formoretravelstationquoteform.netlify.app/"; 
-// If you want a different capture form for partnerships, put it here.
+const BUSINESS_FORM_URL = "https://raythetravelpreneur.netlify.app/";
+const TRAVEL_QUOTE_FORM_URL = "https://formoretravelstationquoteform.netlify.app/";
 
 const SYSTEM_PROMPT = `
 You are the For More Travel Assistant for For More Travel Station (Ray Johnson).
@@ -9,41 +9,36 @@ You are the For More Travel Assistant for For More Travel Station (Ray Johnson).
 Your role is to identify visitor intent and respond accordingly, then guide the visitor toward a clear next step.
 
 Intent types:
-1) Traveler intent: planning trips, browsing destinations, travel questions.
+1) Traveler intent: planning trips, browsing destinations, requesting quotes.
 2) Business-curious intent: how it works, flexibility, commissions, getting started.
-3) Partner intent: partnership interest, building a business, joining a team, ownership.
-4) Skeptic intent: doubt, sarcasm, MLM concerns.
+3) Partner intent: partnership interest, building a business, joining a team.
+4) Skeptic intent: doubt, concerns, MLM questions.
 
 Core rules:
 - Stay calm, grounded, factual.
-- Never hype, never argue.
-- No income guarantees or "make money fast" claims.
+- Never hype or argue.
+- No income guarantees.
 - Match the visitor's intent level.
 - Ask one clear next-step question when appropriate.
 - Keep responses concise and friendly.
 - No long dashes.
 
-Key facts you can use when relevant:
-- Someone always earns the commission on travel.
-- Ray can earn commissions on trips he books for others.
-- Ray can earn commissions on trips he takes.
-- Ownership determines who gets paid.
-- Long-term residual income comes from business partnering, but never promise results.
+Link rules:
+- Do not include Markdown links like [here](#) or any placeholder URLs.
+- Do not output any links at all, including raw URLs.
+- Do not say "click here".
+- If a link is needed, simply say a quick form is the easiest next step.
+- The system will add the correct clickable link automatically.
 
-Conversion rule for business and partnership curiosity:
-- Do not push.
-- If the visitor shows interest in learning more, guide them to a short form to capture name and email so Ray can follow up personally.
-- Present the form as the easiest next step to continue the conversation, not a commitment.
-
-If the visitor wants travel planning:
-- Ask for trip basics (where, dates, number of travelers, budget range, departure city).
-- Provide guidance and options, then invite them to the form to request a quote when appropriate.
+Conversion rules:
+- Travel intent routes to the travel quote form.
+- Business or partnership curiosity routes to the business page.
+- Present the next step as a way to continue the conversation, not as a commitment.
 
 Tone:
 - Human, confident, respectful, not salesy.
 `;
 
-// Build CORS headers based on origin
 function buildCorsHeaders(origin) {
   return {
     "Access-Control-Allow-Origin": origin || "*",
@@ -52,40 +47,59 @@ function buildCorsHeaders(origin) {
   };
 }
 
-// Lightweight heuristic to encourage form capture when interest is present
 function looksLikeBusinessInterest(text) {
   if (!text) return false;
   const t = text.toLowerCase();
   return (
-    t.includes("join") ||
-    t.includes("sign up") ||
-    t.includes("partner") ||
-    t.includes("partnership") ||
+    t.includes("get started") ||
     t.includes("how do i start") ||
-    t.includes("how do i get started") ||
+    t.includes("start my business") ||
+    t.includes("join") ||
+    t.includes("partner") ||
     t.includes("business") ||
     t.includes("opportunity") ||
-    t.includes("incom") ||
     t.includes("commission") ||
-    t.includes("work from") ||
     t.includes("residual") ||
     t.includes("tell me more")
   );
 }
 
-function hasAlreadySharedForm(messages, formUrl) {
-  const joined = (messages || [])
-    .map((m) => (typeof m?.content === "string" ? m.content : ""))
-    .join("\n")
+function looksLikeTravelQuoteIntent(text) {
+  if (!text) return false;
+  const t = text.toLowerCase();
+  return (
+    t.includes("quote") ||
+    t.includes("price") ||
+    t.includes("cost") ||
+    t.includes("book") ||
+    t.includes("booking") ||
+    t.includes("cruise") ||
+    t.includes("resort") ||
+    t.includes("vacation") ||
+    t.includes("trip") ||
+    t.includes("travel")
+  );
+}
+
+function alreadySharedLink(messages, url) {
+  const joined = messages
+    .map((m) => (typeof m.content === "string" ? m.content : ""))
+    .join(" ")
     .toLowerCase();
-  return joined.includes((formUrl || "").toLowerCase());
+  return joined.includes(url.toLowerCase());
+}
+
+// Safety net: remove any markdown links the model might output
+function stripMarkdownLinks(text) {
+  if (!text || typeof text !== "string") return text;
+  // Convert: [text](url) -> text
+  return text.replace(/\[([^\]]+)\]\([^)]+\)/g, "$1");
 }
 
 exports.handler = async (event) => {
   const origin = event.headers?.origin || "*";
   const corsHeaders = buildCorsHeaders(origin);
 
-  // CORS preflight
   if (event.httpMethod === "OPTIONS") {
     return { statusCode: 200, headers: corsHeaders, body: "" };
   }
@@ -104,47 +118,35 @@ exports.handler = async (event) => {
       return {
         statusCode: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
-        body: JSON.stringify({ error: "Server not configured with OpenAI key" }),
+        body: JSON.stringify({ error: "OpenAI API key missing" }),
       };
     }
 
     const body = JSON.parse(event.body || "{}");
-
-    // Accept either:
-    // 1) { message: "hi" }
-    // 2) { messages: [{role,content}, ...], message?: "hi" }
-    const rawMessages = Array.isArray(body.messages) ? body.messages : [];
-    const rawMessage = typeof body.message === "string" ? body.message : "";
+    const messages = Array.isArray(body.messages) ? body.messages : [];
+    const userMessage = typeof body.message === "string" ? body.message : "";
 
     const normalizedMessages =
-      rawMessages.length > 0
-        ? rawMessages
-        : rawMessage
-        ? [{ role: "user", content: rawMessage }]
+      messages.length > 0
+        ? messages
+        : userMessage
+        ? [{ role: "user", content: userMessage }]
         : [];
 
     if (normalizedMessages.length === 0) {
       return {
         statusCode: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
-        body: JSON.stringify({ error: "Missing message in request body" }),
+        body: JSON.stringify({ error: "No message provided" }),
       };
     }
 
-    // Optional context (helps page-specific behavior)
-    const contextBits = [];
-    if (body.page) contextBits.push(`Page: ${body.page}`);
-    if (body.source) contextBits.push(`Source: ${body.source}`);
-
-    const contextText =
-      contextBits.length > 0 ? `\nContext:\n${contextBits.join("\n")}\n` : "";
-
     const messagesForAI = [
-      { role: "system", content: SYSTEM_PROMPT + contextText },
+      { role: "system", content: SYSTEM_PROMPT },
       ...normalizedMessages,
     ];
 
-    const openAIResponse = await fetch("https://api.openai.com/v1/chat/completions", {
+    const aiResponse = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -158,32 +160,51 @@ exports.handler = async (event) => {
       }),
     });
 
-    const data = await openAIResponse.json();
+    const data = await aiResponse.json();
 
-    if (!openAIResponse.ok) {
-      console.error("OpenAI API error:", data);
+    if (!aiResponse.ok) {
       return {
-        statusCode: openAIResponse.status || 500,
+        statusCode: aiResponse.status || 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
-        body: JSON.stringify({ error: "OpenAI API error", details: data }),
+        body: JSON.stringify({ error: "OpenAI error", details: data }),
       };
     }
 
     let reply =
-      (data?.choices?.[0]?.message?.content || "").trim() ||
+      data?.choices?.[0]?.message?.content?.trim() ||
       "Thanks for your message. How can I help you today?";
 
-    // Add a gentle form invite when business interest is detected and form not already shared
+    // Strip any markdown link formatting if it slips through
+    reply = stripMarkdownLinks(reply);
+
     const lastUserText =
-      [...normalizedMessages].reverse().find((m) => m?.role === "user")?.content || "";
+      normalizedMessages
+        .slice()
+        .reverse()
+        .find((m) => m.role === "user")?.content || "";
 
-    const shouldOfferForm =
-      looksLikeBusinessInterest(lastUserText) && !hasAlreadySharedForm(normalizedMessages, FORM_URL);
+    const shouldOfferQuoteForm =
+      looksLikeTravelQuoteIntent(lastUserText) &&
+      !alreadySharedLink(normalizedMessages, TRAVEL_QUOTE_FORM_URL);
 
-    if (shouldOfferForm) {
-      reply +=
-        "\n\nIf you would like, the easiest next step is a quick form so Ray can follow up personally.\n" +
-        `Continue here: ${FORM_URL}`;
+    const shouldOfferBusinessForm =
+      looksLikeBusinessInterest(lastUserText) &&
+      !alreadySharedLink(normalizedMessages, BUSINESS_FORM_URL);
+
+    if (shouldOfferQuoteForm) {
+      reply += `
+
+If you would like a personalized quote, the easiest next step is a quick request form.
+
+<a href="${TRAVEL_QUOTE_FORM_URL}" target="_blank" rel="noopener noreferrer">Request a travel quote</a>
+`;
+    } else if (shouldOfferBusinessForm) {
+      reply += `
+
+The easiest next step is a quick form so Ray can follow up personally and walk you through how it works.
+
+<a href="${BUSINESS_FORM_URL}" target="_blank" rel="noopener noreferrer">Continue the conversation here</a>
+`;
     }
 
     return {
@@ -192,7 +213,6 @@ exports.handler = async (event) => {
       body: JSON.stringify({ reply }),
     };
   } catch (error) {
-    console.error("Function error:", error);
     return {
       statusCode: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },

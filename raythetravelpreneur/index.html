@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-2BXB1Q3YW5"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-2BXB1Q3YW5', {
+    'linker': {
+      'domains': [
+        'formoretravelstation.com',
+        'formoretravelstationquoteform.netlify.app',
+        'raythetravelpreneur.netlify.app',
+        'newthankyoupage.netlify.app'
+      ]
+    }
+  });
+</script>
+
+  <meta charset="UTF-8" />
+  <title>For More Travel Station | Travel & Business</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- FONTS -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Inter:wght@400;500;600&display=swap"
+    rel="stylesheet"
+  >
+
+  <style>
+     .fmt-brand__avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px; /* slight rounding looks better for logos */
+  object-fit: contain;
+  background: white;
+  padding: 2px;
+  display: block;
+}
+    :root {
+      --black: #0a0a0a;
+      --navy: #0d1b2a;
+      --gold: #d4a017;
+      --white: #ffffff;
+      --gray: #f5f5f5;
+      --text: #222222;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--black);
+      color: var(--white);
+      line-height: 1.6;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    /* HEADER / NAV */
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: rgba(10,10,10,0.96);
+      backdrop-filter: blur(6px);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .nav-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 12px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .brand {
+      font-family: "Montserrat", system-ui;
+      font-weight: 800;
+      font-size: 18px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .brand span {
+      color: var(--gold);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 18px;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .nav-links a {
+      opacity: 0.85;
+    }
+    .nav-links a:hover {
+      opacity: 1;
+      color: var(--gold);
+    }
+
+    .nav-cta {
+      padding: 8px 16px;
+      border-radius: 999px;
+      border: 1px solid var(--gold);
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    /* HERO */
+
+    .hero {
+      background: radial-gradient(circle at top, #1a2b48 0, #050608 50%, #000000 100%);
+      padding: 80px 18px 70px;
+    }
+
+    .hero-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: minmax(0, 3fr) minmax(0, 2.2fr);
+      gap: 40px;
+      align-items: center;
+    }
+
+    .hero-tag {
+      text-transform: uppercase;
+      color: var(--gold);
+      letter-spacing: 0.15em;
+      font-size: 12px;
+      margin-bottom: 10px;
+    }
+
+    .hero h1 {
+      font-family: "Montserrat", system-ui;
+      font-weight: 800;
+      font-size: 36px;
+      margin: 0 0 14px;
+    }
+
+    .hero p {
+      margin: 0 0 22px;
+      font-size: 16px;
+      max-width: 520px;
+      color: #e7e7e7;
+    }
+
+    .hero-cta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .btn-primary {
+      display: inline-block;
+      padding: 13px 28px;
+      border-radius: 999px;
+      background: var(--gold);
+      color: var(--black);
+      font-family: "Montserrat", system-ui;
+      font-weight: 600;
+      font-size: 15px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      border: none;
+    }
+
+    .btn-secondary {
+      display: inline-block;
+      padding: 12px 24px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.3);
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      opacity: 0.9;
+    }
+
+    .hero-note {
+      font-size: 13px;
+      color: #bbbbbb;
+    }
+
+    .hero-card {
+      background: rgba(7,10,18,0.95);
+      border-radius: 18px;
+      padding: 22px 22px 20px;
+      box-shadow: 0 18px 40px rgba(0,0,0,0.7);
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .hero-card h3 {
+      margin: 0 0 6px;
+      font-family: "Montserrat", system-ui;
+      font-size: 16px;
+    }
+
+    .hero-card p {
+      margin: 0 0 16px;
+      font-size: 14px;
+      color: #d3d3d3;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.12);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-right: 6px;
+      margin-bottom: 4px;
+    }
+
+    /* SECTIONS */
+
+    section {
+      padding: 60px 18px;
+    }
+
+    .section-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .section-dark {
+      background: var(--navy);
+      color: var(--white);
+    }
+
+    .section-light {
+      background: var(--gray);
+      color: var(--text);
+    }
+
+    .section-title {
+      font-family: "Montserrat", system-ui;
+      font-size: 26px;
+      font-weight: 700;
+      margin: 0 0 10px;
+      text-align: center;
+      position: relative;
+    }
+
+    /* Gold accent under section titles */
+    .section-title::after {
+      content: "";
+      display: block;
+      width: 60px;
+      height: 2px;
+      background: var(--gold);
+      margin: 8px auto 0;
+      border-radius: 4px;
+    }
+
+    .section-sub {
+      font-size: 15px;
+      max-width: 580px;
+      margin: 0 auto 30px;
+      text-align: center;
+      color: #d7d7d7;
+    }
+
+    .section-light .section-sub {
+      color: #555555;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 26px;
+      align-items: flex-start;
+    }
+
+    .card {
+      background: var(--white);
+      border-radius: 12px;
+      padding: 22px 20px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+      color: var(--text);
+    }
+
+    .card h3 {
+      margin: 0 0 8px;
+      font-family: "Montserrat", system-ui;
+      font-size: 18px;
+    }
+
+    .card p {
+      margin: 0;
+      font-size: 15px;
+    }
+
+    ul.clean-list {
+      padding-left: 18px;
+      margin: 0;
+      font-size: 15px;
+    }
+
+    ul.clean-list li {
+      margin-bottom: 6px;
+    }
+
+    /* FORMS */
+
+    .form-card {
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 24px 20px 22px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+      color: var(--text);
+    }
+
+    .form-card h3 {
+      font-family: "Montserrat", system-ui;
+      margin: 0 0 6px;
+      font-size: 18px;
+    }
+
+    .form-card p {
+      margin: 0 0 18px;
+      font-size: 14px;
+      color: #555;
+    }
+
+    .field {
+      margin-bottom: 14px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 13px;
+      margin-bottom: 4px;
+      color: #333;
+    }
+
+    .field input,
+    .field select,
+    .field textarea {
+      width: 100%;
+      padding: 9px 11px;
+      border-radius: 8px;
+      border: 1px solid #d0d0d0;
+      font-size: 14px;
+      font-family: inherit;
+      outline: none;
+    }
+
+    .field textarea {
+      min-height: 80px;
+      resize: vertical;
+    }
+
+    .small-note {
+      font-size: 12px;
+      color: #777;
+      margin-top: 8px;
+    }
+
+    /* VIDEO BLOCK */
+
+    .video-frame {
+      position: relative;
+      padding-bottom: 56.25%;
+      height: 0;
+      overflow: hidden;
+      border-radius: 16px;
+      box-shadow: 0 12px 32px rgba(0,0,0,0.6);
+      border: 1px solid rgba(255,255,255,0.12);
+    }
+
+    .video-frame iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+
+    /* FADE-IN ANIMATION */
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(14px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .fade-in {
+      opacity: 0;
+      animation: fadeInUp 0.7s ease-out forwards;
+    }
+
+    /* FOOTER */
+
+    footer {
+      background: #050608;
+      color: #aaaaaa;
+      padding: 26px 18px 22px;
+      font-size: 13px;
+    }
+
+    .footer-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .footer-inner a {
+      color: #dddddd;
+      text-decoration: underline;
+      text-decoration-thickness: 1px;
+      text-underline-offset: 3px;
+    }
+
+    /* RESPONSIVE */
+
+    @media (max-width: 800px) {
+      .hero-inner {
+        grid-template-columns: minmax(0, 1fr);
+      }
+
+      .grid-2 {
+        grid-template-columns: minmax(0, 1fr);
+      }
+
+      .nav-links {
+        display: none;
+      }
+
+      .hero {
+        padding-top: 70px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <div class="nav-inner">
+      <div class="brand">
+        For More <span>Travel</span> Station
+      </div>
+      <nav class="nav-links">
+        <a href="https://raythetravelpreneur.netlify.app/">Business</a>
+        <a href="#about">About</a>
+        <a href="#video">Video</a>
+        <a href="#start">Start</a>
+        <a href="https://formoretravelstationquoteform.netlify.app/">Travel</a>
+      </nav>
+      <a href="mailto:rayjohnson@formoretravelstation.com" class="nav-cta">Email Ray</a>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero" id="business">
+    <div class="hero-inner">
+      <div>
+        <div class="hero-tag">Travel business • second income</div>
+        <h1>Build Income In Travel Around Your Life</h1>
+        <p>
+          I own a barbershop and a travel business. If you want another income stream that can run
+          around a busy schedule, I can walk you through how this travel business works and how to start.
+        </p>
+        <div class="hero-cta-row">
+          <a href="#biz-form" class="btn-primary">Get Business Info</a>
+          <a href="#video" class="btn-secondary">Watch Overview Video</a>
+        </div>
+        <div class="hero-note">
+          You are not joining alone. You get a full system, training, and support.
+        </div>
+      </div>
+
+      <aside class="hero-card">
+        <h3>What This Business Does</h3>
+        <p>
+          You can earn from travel bookings and from helping other people start their own travel business.
+          You plug into a system that is already in place.
+        </p>
+        <div>
+          <span class="pill">Travel commissions</span>
+          <span class="pill">Residual income</span>
+          <span class="pill">Flexible schedule</span>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- GOLD DIVIDER ABOVE ABOUT -->
+  <div style="width:100%;height:2px;background:#D4A017;margin:60px auto;border-radius:4px;"></div>
+
+  <!-- ABOUT RAY (HEADSHOT + BIO) -->
+  <section class="section-dark" id="about">
+    <div class="section-inner" style="display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1.5fr);gap:32px;align-items:center;">
+      <div style="text-align:center;">
+        <img
+          src="ray-headShot.jpg"
+          alt="Ray Johnson, For More Travel Station"
+          style="width:100%;max-width:320px;border-radius:14px;box-shadow:0 12px 28px rgba(0,0,0,0.6);border:2px solid rgba(212,160,23,0.85);"
+        >
+      </div>
+      <div>
+        <h2 class="section-title" style="text-align:left;margin-bottom:8px;">About Ray</h2>
+        <p style="font-size:16px;line-height:1.7;color:#e7e7e7;margin-bottom:12px;">
+          I’m Ray Johnson. I own a barbershop and a travel business. I understand what it means to work hard,
+          manage a busy schedule, and still build something for the future.
+        </p>
+        <p style="font-size:16px;line-height:1.7;color:#e7e7e7;">
+          Through For More Travel Station, I help people plan trips and, for those who are interested,
+          I show how to create an additional income stream in travel using a clear and simple system.
+          If you want to travel better, earn more, or both, you are in the right place.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- GOLD DIVIDER BEFORE BUSINESS SECTION -->
+  <div style="width:100%;height:2px;background:#D4A017;margin:60px auto;border-radius:4px;"></div>
+
+  <!-- BUSINESS OVERVIEW + CAPTURE -->
+  <section class="section-dark">
+    <div class="section-inner" id="biz-form">
+      <h2 class="section-title">Get The Business Overview</h2>
+      <p class="section-sub">
+        Enter your info and I will send you a clear breakdown that explains how the business works and what your next steps are.
+      </p>
+
+      <div class="grid-2">
+        <!-- FORM COLUMN -->
+        <div class="form-card fade-in" style="text-align:center;">
+
+          <!-- TOP GOLD DIVIDER INSIDE CARD -->
+          <div style="width:100%;height:2px;background:#D4A017;margin:0 auto 25px;border-radius:4px;"></div>
+
+          <h3 style="text-align:center;margin-bottom:10px;">
+            Request Business Details
+          </h3>
+
+          <p style="font-size:14px;color:#555;margin-bottom:25px;text-align:center;">
+            Enter your info below and I will send you a clear breakdown of how the travel business works and how to move forward.
+          </p>
+
+          <!-- Center the iframe -->
+          <div style="display:flex;justify-content:center;">
+            <iframe 
+                src="https://link.uplevelsystem.com/widget/form/R4NeSdgl0O4GbbBnckUV"
+                style="width:100%;max-width:500px;height:607px;border:none;border-radius:8px;"
+                id="inline-R4NeSdgl0O4GbbBnckUV" 
+                data-layout="{'id':'INLINE'}"
+                data-trigger-type="alwaysShow"
+                data-trigger-value=""
+                data-activation-type="alwaysActivated"
+                data-activation-value=""
+                data-deactivation-type="neverDeactivate"
+                data-deactivation-value=""
+                data-form-name="Start Business Info – For More Travel Station"
+                data-height="607"
+                data-layout-iframe-id="inline-R4NeSdgl0O4GbbBnckUV"
+                data-form-id="R4NeSdgl0O4GbbBnckUV"
+                title="Start Business Info – For More Travel Station"
+            ></iframe>
+          </div>
+
+          <script src="https://link.uplevelsystem.com/js/form_embed.js"></script>
+
+          <!-- BOTTOM GOLD DIVIDER INSIDE CARD -->
+          <div style="width:100%;height:2px;background:#D4A017;margin:25px auto 0;border-radius:4px;"></div>
+
+        </div>
+
+        <!-- COPY COLUMN -->
+        <div class="card">
+          <h3>How You Earn</h3>
+          <ul class="clean-list">
+            <li>Commissions from cruises, resorts, hotels, flights, and more.</li>
+            <li>Residual income by helping others start their own travel business.</li>
+            <li>Training and systems are already in place for you.</li>
+            <li>You can build this part time, with a few focused hours a week.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- GOLD DIVIDER -->
+  <div style="width:100%;height:2px;background:#D4A017;margin:60px auto;border-radius:4px;"></div>
+
+  <!-- VIDEO SECTION -->
+  <section class="section-dark" id="video">
+    <div class="section-inner">
+      <h2 class="section-title">Watch The Travel Business Overview</h2>
+      <p class="section-sub">
+        This video gives you the full picture. Watch it, and then let's move forward.
+      </p>
+
+      <div class="video-frame">
+        <!-- Your Vimeo video -->
+        <iframe
+          src="https://player.vimeo.com/video/1012841798"
+          allow="autoplay; fullscreen; picture-in-picture"
+          allowfullscreen
+        ></iframe>
+      </div>
+
+      <div style="text-align:center; margin-top:26px;">
+        <a href="#start" class="btn-primary">I Watched It, Show Me Next Steps</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- GOLD DIVIDER -->
+  <div style="width:100%;height:2px;background:#D4A017;margin:60px auto;border-radius:4px;"></div>
+
+  <!-- START YOUR TRAVEL BUSINESS -->
+  <section class="section-light" id="start">
+    <div class="section-inner">
+      <h2 class="section-title" style="color:var(--navy);">Start Your Travel Business</h2>
+      <p class="section-sub">
+        If the business makes sense and you want to move forward, you can enroll through my official site below.
+        Once you start, I will send you simple Fast Start steps.
+      </p>
+
+      <div class="grid-2">
+        <div class="card">
+          <h3>What Happens When You Start</h3>
+          <ul class="clean-list">
+            <li>You receive access to your travel agency and business dashboards.</li>
+            <li>You complete short orientation training so you understand the tools.</li>
+            <li>You set simple income goals and we plan your first steps together.</li>
+            <li>You start learning how to book travel and how the compensation works.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Ready To Enroll</h3>
+          <p>
+            This button takes you to my official PlanNet Marketing site. Use the Enroll Now option there to start your travel business.
+          </p>
+          <p style="margin-top:10px;">
+            After you enroll, send me a text saying “I am in” to 972-921-3936 and I will send you your Fast Start steps.
+          </p>
+          <p style="margin-top:18px;">
+            <a
+              href="https://www.plannetmarketing.com/ForMoreTravelStation1"
+              class="btn-primary"
+              style="display:inline-block;"
+              target="_blank"
+              rel="noopener"
+            >
+              Start My Travel Business
+            </a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- GOLD DIVIDER -->
+  <div style="width:100%;height:2px;background:#D4A017;margin:60px auto;border-radius:4px;"></div>
+
+  <!-- SIMPLE CONTACT / CLOSING SECTION -->
+  <section class="section-dark">
+    <div class="section-inner">
+      <h2 class="section-title">Have Questions</h2>
+      <p class="section-sub">
+        Whether you want to travel, learn the business, or both, you can reach out and I will respond as soon as I can.
+      </p>
+      <div style="text-align:center; margin-top:10px;">
+        <a href="sms:+19729213936" class="btn-primary" style="margin-right:10px;">Text Ray</a>
+        <a href="mailto:rayjohnson@formoretravelstation.com" class="btn-secondary">Email Ray</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-inner">
+      <div>© <span id="year"></span> For More Travel Station. All rights reserved.</div>
+      <div>
+        Built for business and travel information. Always review full details on the official enrollment page before joining.<br>
+        <span style="font-size:12px;color:#777;">Last updated: November 2025</span>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Set current year in footer
+    document.getElementById("year").textContent = new Date().getFullYear();
+  </script>
+ 
+<!-- For More Travel Assistant – Embedded Chat Widget -->
+<style>
+    .fmt-msg-bot a {
+  color: var(--fmt-primary);
+  font-weight: 600;
+  text-decoration: underline;
+}
+.fmt-msg-bot a:hover {
+  opacity: 0.85;
+}
+
+  :root {
+    --fmt-primary: #0ea5e9;
+    --fmt-accent: #14b8a6;
+    --fmt-dark: #0f172a;
+  }
+  .fmt-chat-btn {
+    position: fixed; right: 20px; bottom: 20px; z-index: 9999;
+    width: 60px; height: 60px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--fmt-accent), var(--fmt-primary));
+    box-shadow: 0 8px 24px rgba(2, 132, 199, 0.35);
+    border: none; cursor: pointer;
+    display: grid; place-items: center;
+  }
+  .fmt-chat-btn:focus { outline: 2px solid white; outline-offset: 3px }
+
+  .fmt-modal {
+    position: fixed; inset: 0; display: none; z-index: 10000;
+    background: rgba(15, 23, 42, 0.55);
+  }
+  .fmt-modal.open { display: block }
+  .fmt-modal__panel {
+    position: fixed; right: 20px; bottom: 90px;
+    width: min(420px, 92vw); height: min(70vh, 720px);
+    background: #fff; border-radius: 16px; overflow: hidden;
+    box-shadow: 0 20px 60px rgba(2, 6, 23, 0.45);
+    display: flex; flex-direction: column;
+  }
+  .fmt-modal__header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 12px; background: #f8fafc; border-bottom: 1px solid #e2e8f0;
+  }
+  .fmt-brand {
+    display: flex; align-items: center; gap: 10px; font-weight: 600; color: var(--fmt-dark);
+  }
+  .fmt-brand__badge {
+    width: 26px; height: 26px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--fmt-accent), var(--fmt-primary));
+    display: grid; place-items: center;
+  }
+  .fmt-brand__badge svg { width: 16px; height: 16px; fill: white }
+  .fmt-close { background: transparent; border: none; cursor: pointer; padding: 6px; }
+  .fmt-close svg { width: 20px; height: 20px; fill: #334155 }
+
+  .fmt-chat-body {
+    flex: 1;
+    padding: 10px 12px;
+    background: #f1f5f9;
+    overflow-y: auto;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 14px;
+  }
+  .fmt-msg {
+    max-width: 90%;
+    margin-bottom: 8px;
+    padding: 8px 10px;
+    border-radius: 12px;
+    line-height: 1.4;
+    white-space: pre-wrap;
+  }
+  .fmt-msg-user {
+    margin-left: auto;
+    background: #0ea5e9;
+    color: white;
+    border-bottom-right-radius: 2px;
+  }
+  .fmt-msg-bot {
+    margin-right: auto;
+    background: white;
+    color: #0f172a;
+    border-bottom-left-radius: 2px;
+  }
+  .fmt-chat-footer {
+    padding: 8px 10px;
+    border-top: 1px solid #e2e8f0;
+    background: #f8fafc;
+    display: flex;
+    gap: 8px;
+  }
+  .fmt-input {
+    flex: 1;
+    border-radius: 999px;
+    border: 1px solid #cbd5f5;
+    padding: 8px 12px;
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+  }
+  .fmt-send-btn {
+    border-radius: 999px;
+    border: none;
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    background: linear-gradient(135deg, var(--fmt-accent), var(--fmt-primary));
+    color: white;
+  }
+  .fmt-helper {
+    font-size: 11px;
+    color: #64748b;
+    padding: 4px 12px 8px;
+  }
+  @media (max-width: 640px) {
+    .fmt-modal__panel { right: 4vw; bottom: 84px; width: 92vw; height: 72vh; }
+  }
+</style>
+
+<button class="fmt-chat-btn" id="fmtOpenChat" aria-label="Chat with Ray">
+  <img
+    src="https://raythetravelpreneur.netlify.app/ray-headShot.jpg"
+    alt="Ray – For More Travel Station"
+    style="
+      width: 42px;
+      height: 42px;
+      object-fit: cover;
+      border-radius: 50%;
+      background: white;
+      padding: 2px;
+      box-shadow: 0 0 0 2px white;
+    "
+  />
+</button>
+
+<div class="fmt-modal" id="fmtModal" aria-hidden="true" role="dialog" aria-label="For More Travel Assistant">
+  <div class="fmt-modal__panel" role="document">
+    <div class="fmt-modal__header">
+      <div class="fmt-brand">
+       <img
+  src="https://formoretravelstation.com/custom-site/FMTLOGO.jpg"
+  alt="For More Travel Station"
+  class="fmt-brand__avatar"
+/>
+
+
+        For More Travel Assistant
+      </div>
+      <button class="fmt-close" id="fmtCloseChat" aria-label="Close chat">
+        <svg viewBox="0 0 24 24">
+          <path d="M18.3 5.7L12 12l6.3 6.3-1.4 1.4L10.6 13.4 4.3 19.7 2.9 18.3 9.2 12 2.9 5.7 4.3 4.3 10.6 10.6 16.9 4.3z"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="fmt-chat-body" id="fmtChatBody"></div>
+    <div class="fmt-helper">
+      🔒 AI is for guidance only. Final quotes and bookings are always confirmed by Ray.
+    </div>
+    <form class="fmt-chat-footer" id="fmtChatForm">
+      <input
+        type="text"
+        class="fmt-input"
+        id="fmtUserInput"
+        placeholder="Ask about a trip or the business..."
+        autocomplete="off"
+      />
+      <button type="submit" class="fmt-send-btn">Send</button>
+    </form>
+  </div>
+</div>
+
+<script>
+  (function () {
+    // Footer year
+    const yearEl = document.getElementById('year');
+    if (yearEl) yearEl.textContent = new Date().getFullYear();
+
+    const openBtn = document.getElementById('fmtOpenChat');
+    const modal = document.getElementById('fmtModal');
+    const closeBtn = document.getElementById('fmtCloseChat');
+    const chatBody = document.getElementById('fmtChatBody');
+    const chatForm = document.getElementById('fmtChatForm');
+    const userInput = document.getElementById('fmtUserInput');
+
+    const messages = [];
+
+    function openModal() {
+      modal.classList.add('open');
+      modal.setAttribute('aria-hidden', 'false');
+      if (!messages.length) {
+        addBotMessage(
+          "Hi! I’m your For More Travel Assistant. 👋<br><br>" +
+          "• Ask about a trip you want to plan.<br>" +
+          "• Or ask how the travel business works.<br><br>" +
+          "What would you like help with today?"
+        );
+      }
+      setTimeout(()=>userInput && userInput.focus(), 120);
+    }
+
+    function closeModal() {
+      modal.classList.remove('open');
+      modal.setAttribute('aria-hidden', 'true');
+    }
+
+    function addMessage(content, isUser) {
+      const div = document.createElement('div');
+      div.className = 'fmt-msg ' + (isUser ? 'fmt-msg-user' : 'fmt-msg-bot');
+      if (isUser) div.textContent = content;
+      else div.innerHTML = content;
+      chatBody.appendChild(div);
+      chatBody.scrollTop = chatBody.scrollHeight;
+    }
+
+    function addBotMessage(content) { addMessage(content, false); }
+
+    async function sendToAssistant(text) {
+      messages.push({ role: 'user', content: text });
+
+      const thinkingDiv = document.createElement('div');
+      thinkingDiv.className = 'fmt-msg fmt-msg-bot';
+      thinkingDiv.textContent = 'Assistant is thinking...';
+      chatBody.appendChild(thinkingDiv);
+      chatBody.scrollTop = chatBody.scrollHeight;
+
+         try {
+        const res = await fetch(
+          'https://raythetravelpreneur.netlify.app/.netlify/functions/for-more-travel-assistant',
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              message: text,
+              messages,
+              source: 'chat_widget',
+              page: location.href
+            }),
+          }
+        );
+
+        const data = await res.json().catch(()=> ({}));
+        if (!res.ok) throw new Error(data?.error || 'Network error');
+
+        const reply = data.reply || data.answer || data.message || 'Sorry, I had trouble responding.';
+        thinkingDiv.innerHTML = reply;   // <-- makes links clickable
+        messages.push({ role: 'assistant', content: reply });
+      } catch (err) {
+        console.error(err);
+        thinkingDiv.innerHTML = 'Sorry, something went wrong. Please try again.';
+      }
+
+      chatBody.scrollTop = chatBody.scrollHeight;
+    }
+
+    if (openBtn) openBtn.addEventListener('click', openModal);
+    if (closeBtn) closeBtn.addEventListener('click', closeModal);
+    if (modal) modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+
+    if (chatForm) {
+      chatForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        const text = (userInput?.value || '').trim();
+        if (!text) return;
+        addMessage(text, true);
+        userInput.value = '';
+        sendToAssistant(text);
+      });
+    }
+  })();
+</script>
+<!-- /For More Travel Assistant – Embedded Chat Widget -->
+</body>
+</html>
+
+
+
+
+
