@@ -104,6 +104,7 @@ exports.handler = async (event) => {
     return { statusCode: 200, headers: corsHeaders, body: "" };
   }
 
+  // Only allow POST
   if (event.httpMethod !== "POST") {
     return {
       statusCode: 405,
