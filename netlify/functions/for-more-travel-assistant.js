@@ -1,6 +1,6 @@
 // netlify/functions/for-more-travel-assistant.js
 
-const BUSINESS_FORM_URL = "https://raythetravelpreneur.netlify.app/";
+const BUSINESS_FORM_URL = "https://raythetravelpreneur.netlify.app/#start";
 const TRAVEL_QUOTE_FORM_URL = "https://formoretravelstationquoteform.netlify.app/";
 
 const SYSTEM_PROMPT = `
@@ -10,8 +10,8 @@ Your role is to identify visitor intent and respond accordingly, then guide the 
 
 Intent types:
 1) Traveler intent: planning trips, browsing destinations, requesting quotes.
-2) Business-curious intent: how it works, flexibility, commissions, getting started.
-3) Partner intent: partnership interest, building a business, joining a team.
+2) Business-curious intent: how ownership works, flexibility, commissions, getting started.
+3) Partner intent: partnership interest, building a team.
 4) Skeptic intent: doubt, concerns, MLM questions.
 
 Core rules:
@@ -23,16 +23,15 @@ Core rules:
 - Keep responses concise and friendly.
 - No long dashes.
 
-Link rules:
-- Do not include Markdown links like [here](#) or any placeholder URLs.
-- Do not output any links at all, including raw URLs.
+Link and handoff rules:
+- Do not include any links, URLs, or markdown links in your message.
 - Do not say "click here".
-- If a link is needed, simply say a quick form is the easiest next step.
-- The system will add the correct clickable link automatically.
+- If the best next step is a form, say: "The easiest next step is a quick form."
+  The system will automatically add the correct clickable link after your message.
 
-Conversion rules:
+Routing rules:
 - Travel intent routes to the travel quote form.
-- Business or partnership curiosity routes to the business page.
+- Business or partnership curiosity routes to the ownership/business page.
 - Present the next step as a way to continue the conversation, not as a commitment.
 
 Tone:
@@ -54,8 +53,11 @@ function looksLikeBusinessInterest(text) {
     t.includes("get started") ||
     t.includes("how do i start") ||
     t.includes("start my business") ||
+    t.includes("start a business") ||
+    t.includes("ownership") ||
     t.includes("join") ||
     t.includes("partner") ||
+    t.includes("team") ||
     t.includes("business") ||
     t.includes("opportunity") ||
     t.includes("commission") ||
@@ -96,6 +98,12 @@ function stripMarkdownLinks(text) {
   return text.replace(/\[([^\]]+)\]\([^)]+\)/g, "$1");
 }
 
+// Extra safety: if the model outputs any anchor tags, don't append another link
+function containsHtmlLink(text) {
+  if (!text || typeof text !== "string") return false;
+  return /<a\s+[^>]*href=/i.test(text);
+}
+
 exports.handler = async (event) => {
   const origin = event.headers?.origin || "*";
   const corsHeaders = buildCorsHeaders(origin);
@@ -104,7 +112,6 @@ exports.handler = async (event) => {
     return { statusCode: 200, headers: corsHeaders, body: "" };
   }
 
-  // Only allow POST
   if (event.httpMethod !== "POST") {
     return {
       statusCode: 405,
@@ -174,7 +181,6 @@ exports.handler = async (event) => {
       data?.choices?.[0]?.message?.content?.trim() ||
       "Thanks for your message. How can I help you today?";
 
-    // Strip any markdown link formatting if it slips through
     reply = stripMarkdownLinks(reply);
 
     const lastUserText =
@@ -183,28 +189,32 @@ exports.handler = async (event) => {
         .reverse()
         .find((m) => m.role === "user")?.content || "";
 
-    const shouldOfferQuoteForm =
-      looksLikeTravelQuoteIntent(lastUserText) &&
-      !alreadySharedLink(normalizedMessages, TRAVEL_QUOTE_FORM_URL);
+    const wantsBusiness = looksLikeBusinessInterest(lastUserText);
+    const wantsTravel = looksLikeTravelQuoteIntent(lastUserText);
 
     const shouldOfferBusinessForm =
-      looksLikeBusinessInterest(lastUserText) &&
-      !alreadySharedLink(normalizedMessages, BUSINESS_FORM_URL);
+      wantsBusiness && !alreadySharedLink(normalizedMessages, BUSINESS_FORM_URL);
 
-    if (shouldOfferQuoteForm) {
-      reply += `
+    const shouldOfferQuoteForm =
+      wantsTravel && !alreadySharedLink(normalizedMessages, TRAVEL_QUOTE_FORM_URL);
+
+    // Prefer business when both match, and never append if model already output an <a href=...>
+    if (!containsHtmlLink(reply)) {
+      if (shouldOfferBusinessForm) {
+        reply += `
+
+The easiest next step is a quick form so Ray can follow up personally and walk you through how it works.
+
+<a href="${BUSINESS_FORM_URL}" target="_blank" rel="noopener noreferrer">Continue here</a>
+`;
+      } else if (shouldOfferQuoteForm) {
+        reply += `
 
 If you would like a personalized quote, the easiest next step is a quick request form.
 
 <a href="${TRAVEL_QUOTE_FORM_URL}" target="_blank" rel="noopener noreferrer">Request a travel quote</a>
 `;
-    } else if (shouldOfferBusinessForm) {
-      reply += `
-
-The easiest next step is a quick form so Ray can follow up personally and walk you through how it works.
-
-<a href="${BUSINESS_FORM_URL}" target="_blank" rel="noopener noreferrer">Continue the conversation here</a>
-`;
+      }
     }
 
     return {
